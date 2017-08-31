@@ -34,32 +34,17 @@ After successful deployment, the Bastion Node is no longer required unless you w
 
 ### Generate SSH Keys
 
-You'll need to generate an SSH key pair (Public / Private) in order to provision this template. Ensure that you do **NOT** include a passphrase with the private key. <br/><br/>
-If you are using a Windows computer, you can download puttygen.exe.  You will need to export to OpenSSH (from Conversions menu) to get a valid Private Key for use in the Template.<br/><br/>
+You'll need to generate an SSH key pair (Public / Private) in order to provision this template. 
+
+Ensure that you do **NOT** include a passphrase with the private key. <br/><br/>
+
 From a Linux or Mac, you can just use the ssh-keygen command.  Once you are finished deploying the cluster, you can always generate new keys that uses a passphrase and replace the original ones used during inital deployment.
 
 ### Create Key Vault to store SSH Private Key
 
 You will need to create a Key Vault to store your SSH Private Key that will then be used as part of the deployment.  This extra work is to provide security around the Private Key - especially since it does not have a passphrase.  I recommend creating a Resource Group specifically to store the KeyVault.  This way, you can reuse the KeyVault for other deployments and you won't have to create this every time you chose to deploy another OpenShift cluster.
 
-1. Create KeyVault using Powershell <br/>
-  a.  Create new resource group: `New-AzureRMResourceGroup -Name 'ResourceGroupName' -Location 'West US'`<br/>
-  b.  Create key vault: `New-AzureRmKeyVault -VaultName 'KeyVaultName' -ResourceGroup 'ResourceGroupName' -Location 'West US'`<br/>
-  c.  Create variable with sshPrivateKey: `$securesecret = ConvertTo-SecureString -String '[copy ssh Private Key here - including line feeds]' -AsPlainText -Force`<br/>
-  d.  Create Secret: `Set-AzureKeyVaultSecret -Name 'SecretName' -SecretValue $securesecret -VaultName 'KeyVaultName'`<br/>
-  e.  Enable for Template Deployment: `Set-AzureRMKeyVaultAccessPolicy -VaultName 'KeyVaultName' -ResourceGroupName 'ResourceGroupName' -EnabledForTemplateDeployment`<br/>
-
-2. **Create Key Vault using Azure CLI 1.0**<br/>
-  a.  Create new Resource Group: azure group create \<name\> \<location\><br/>
-         Ex: `azure group create ResourceGroupName 'East US'`<br/>
-  b.  Create Key Vault: azure keyvault create -u \<vault-name\> -g \<resource-group\> -l \<location\><br/>
-         Ex: `azure keyvault create -u KeyVaultName -g ResourceGroupName -l 'East US'`<br/>
-  c.  Create Secret: azure keyvault secret set -u \<vault-name\> -s \<secret-name\> --file \<private-key-file-name\><br/>
-         Ex: `azure keyvault secret set -u KeyVaultName -s SecretName --file ~/.ssh/id_rsa`<br/>
-  d.  Enable the Keyvvault for Template Deployment: azure keyvault set-policy -u \<vault-name\> --enabled-for-template-deployment true<br/>
-         Ex: `azure keyvault set-policy -u KeyVaultName --enabled-for-template-deployment true`<br/>
-
-3. **Create Key Vault using Azure CLI 2.0**<br/>
+1 . **Create Key Vault using Azure CLI 2.0**<br/>
   a.  Create new Resource Group: az group create -n \<name\> -l \<location\><br/>
          Ex: `az group create -n ResourceGroupName -l 'East US'`<br/>
   b.  Create Key Vault: az keyvault create -n \<vault-name\> -g \<resource-group\> -l \<location\> --enabled-for-template-deployment true<br/>
@@ -71,43 +56,9 @@ You will need to create a Key Vault to store your SSH Private Key that will then
 
 To configure Azure as the Cloud Provider for OpenShift Container Platform, you will need to create an Azure Active Directory Service Principal.  The easiest way to perform this task is via the Azure CLI.  Below are the steps for doing this.
 
-You will want to create the Resource Group that you will ultimately deploy the OpenShift cluster to prior to completing the following steps.  If you don't, then wait until you initiate the deployment of the cluster before completing **Azure CLI 1.0 Step 2**. If using **Azure CLI 2.0**, complete step 2 to create the Service Principal prior to deploying the cluster and then assign permissions based on **Azure CLI 1.0 Step 2**.
+You will want to create the Resource Group that you will ultimately deploy the OpenShift cluster to prior to completing the following steps.  
  
-**Azure CLI 1.0**
-
-1. **Create Service Principal**<br/>
-  a.  azure ad sp create -n \<friendly name\> -p \<password\> --home-page \<URL\> --identifier-uris \<URL\><br/>
-      Ex: `azure ad sp create -n openshiftcloudprovider -p Pass@word1 --home-page http://myhomepage --identifier-uris http://myhomepage`
-
-The entries for --home-page and --identifier-uris is not important for this use case so they do not have to be valid links.
-You will get an output similar to this
-
-```
-info:    Executing command ad sp create
-+ Creating application openshift demo cloud provider
-+ Creating service principal for application 198c4803-1236-4c3f-ad90-46e5f3b4cd2a
-data:    Object Id:               00419334-174b-41e8-9b83-9b5011d8d352
-data:    Display Name:            openshiftcloudprovider
-data:    Service Principal Names:
-data:                             198c4803-1236-4c3f-ad90-46e5f3b4cd2a
-data:                             http://myhomepage
-info:    ad sp create command OK
-```
-Save the Object Id and the GUID in the Service Principal Names section.  This GUID is the Application ID / Client ID (aadClientId parameter).  The the password you entered as part of the CLI command is the input the aadClientSecret paramter.
-
-2. **Assign permissions to Service Principal for specific Resource Group**<br/>
-  a.  Sign into the Azure Portal<br/>
-  b.  Select the Resource Group you want to assign permissions to<br/>
-  c.  Select Access control (IAM) from middle pane<br/>
-  d.  Click Add on right pane<br/>
-  e.  For Role, Select Contributor<br/>
-  f.  In Select field, type the name of your Service Principal to find it<br/>
-  g.  Click the Service Principal from the list and hit Save<br/>
-
-![IAM ScreenShot1](images/openshiftiambcd.jpg)
-
-![IAM ScreenShot2](images/openshiftiamefg.jpg)
-  
+ 
 **Azure CLI 2.0**
 
 1. **Create Service Principal and assign permissions to Resource Group**<br/>
@@ -132,7 +83,18 @@ You will get an output similar to:
 
 The appId is used for the aadClientId parameter.
 
-To assign permissions, please follow the instructions from Azure CLI 1.0 Step 2 above.
+3. **Assign permissions to Service Principal for specific Resource Group**<br/>
+  a.  Sign into the Azure Portal<br/>
+  b.  Select the Resource Group you want to assign permissions to<br/>
+  c.  Select Access control (IAM) from middle pane<br/>
+  d.  Click Add on right pane<br/>
+  e.  For Role, Select Contributor<br/>
+  f.  In Select field, type the name of your Service Principal to find it<br/>
+  g.  Click the Service Principal from the list and hit Save<br/>
+
+![IAM ScreenShot1](images/openshiftiambcd.jpg)
+
+![IAM ScreenShot2](images/openshiftiamefg.jpg)
 
 ### Red Hat Subscription Access
 
@@ -185,13 +147,6 @@ Deploy to Azure using Azure Portal:
 </a><br/>
 
 Once you have collected all of the prerequisites for the template, you can deploy the template by clicking Deploy to Azure or populating the **azuredeploy.parameters.json** file and executing Resource Manager deployment commands with PowerShell or the Azure CLI.
-
-**Azure CLI 1.0**
-
-1. Create Resource Group: azure group create \<name\> \<location\><br />
-Ex: `azure group create openshift-cluster westus`
-2. Create Resource Group Deployment: azure group deployment create --name \<deployment name\> --template-file \<template_file\> -e \<parameters_file\> --resource-group \<resource group name\> --nowait<br />
-Ex: `azure group deployment create --name ocpdeployment --template-file azuredeploy.json -e azuredeploy.parameters.json --resource-group openshift-cluster --nowait`
 
 **Azure CLI 2.0**
 
