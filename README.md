@@ -47,9 +47,9 @@ You will need to create a Key Vault to store your SSH Private Key that will then
   a.  Create new Resource Group: az group create -n \<name\> -l \<location\><br/>
          Ex: `az group create -n ResourceGroupName -l 'East US'`<br/>
   b.  Create Key Vault: az keyvault create -n \<vault-name\> -g \<resource-group\> -l \<location\> --enabled-for-template-deployment true<br/>
-         Ex: `az keyvault create -n KeyVaultName -g ResourceGroupName -l 'East US' --enabled-for-template-deployment true`<br/>
+         Ex: `az keyvault create -n KEYVAULTNAME -g RESOURCEGROUP -l 'East US' --enabled-for-template-deployment true`<br/>
   c.  Create Secret: az keyvault secret set --vault-name \<vault-name\> -n \<secret-name\> --file \<private-key-file-name\><br/>
-         Ex: `az keyvault secret set --vault-name KeyVaultName -n SecretName --file ~/.ssh/id_rsa`<br/>
+         Ex: `az keyvault secret set --vault-name KEYVAULTNAME -n SECRETNAME --file ~/.ssh/id_rsa`<br/>
 
 ### Generate Azure Active Directory (AAD) Service Principal
 
@@ -62,11 +62,11 @@ You will want to create the Resource Group that you will ultimately deploy the O
 
 **Create Service Principal and assign permissions to Resource Group**<br/>
   a.  az ad sp create-for-rbac -n \<friendly name\> --password \<password\> --role contributor --scopes /subscriptions/\<subscription_id\>/resourceGroups/\<Resource Group Name\><br/>
-      Ex: `az ad sp create-for-rbac -n openshiftcloudprovider --password Pass@word1 --role contributor --scopes /subscriptions/555a123b-1234-5ccc-defgh-6789abcdef01/resourceGroups/00000test`<br/>
+      Ex: `az ad sp create-for-rbac -n NAME --password PASSWORD --role contributor --scopes /subscriptions/555a123b-1234-5ccc-defgh-6789abcdef01/resourceGroups/00000test`<br/>
 
 **Create Service Principal without assigning permissions to Resource Group**<br/>
   a.  az ad sp create-for-rbac -n \<friendly name\> --password \<password\> --role contributor --skip-assignment<br/>
-      Ex: `az ad sp create-for-rbac -n openshiftcloudprovider --password Pass@word1 --role contributor --skip-assignment`<br/>
+      Ex: `az ad sp create-for-rbac -n NAME --password PASSWORD --role contributor --skip-assignment`<br/>
 
 You will get an output similar to:
 
@@ -152,7 +152,7 @@ Once you have collected all of the prerequisites for the template, you can deplo
 1. Create Resource Group: az group create -n \<name\> -l \<location\><br />
 Ex: `az group create -n openshift-cluster -l westus`
 2. Create Resource Group Deployment: az group deployment create --name \<deployment name\> --template-file \<template_file\> --parameters @\<parameters_file\> --resource-group \<resource group name\> --nowait<br />
-Ex: `az group deployment create --name ocpdeployment --template-file azuredeploy.json --parameters @azuredeploy.parameters.json --resource-group openshift-cluster --no-wait`
+Ex: `az group deployment create --name NAME --template-file azuredeploy.json --parameters @azuredeploy.parameters.json --resource-group openshift-cluster --no-wait`
 
 
 ### NOTE
