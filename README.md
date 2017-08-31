@@ -44,7 +44,7 @@ From a Linux or Mac, you can just use the ssh-keygen command.  Once you are fini
 
 You will need to create a Key Vault to store your SSH Private Key that will then be used as part of the deployment.  This extra work is to provide security around the Private Key - especially since it does not have a passphrase.  I recommend creating a Resource Group specifically to store the KeyVault.  This way, you can reuse the KeyVault for other deployments and you won't have to create this every time you chose to deploy another OpenShift cluster.
 
-1 . **Create Key Vault using Azure CLI 2.0**<br/>
+**Create Key Vault using Azure CLI 2.0**<br/>
   a.  Create new Resource Group: az group create -n \<name\> -l \<location\><br/>
          Ex: `az group create -n ResourceGroupName -l 'East US'`<br/>
   b.  Create Key Vault: az keyvault create -n \<vault-name\> -g \<resource-group\> -l \<location\> --enabled-for-template-deployment true<br/>
@@ -61,11 +61,11 @@ You will want to create the Resource Group that you will ultimately deploy the O
  
 **Azure CLI 2.0**
 
-1. **Create Service Principal and assign permissions to Resource Group**<br/>
+**Create Service Principal and assign permissions to Resource Group**<br/>
   a.  az ad sp create-for-rbac -n \<friendly name\> --password \<password\> --role contributor --scopes /subscriptions/\<subscription_id\>/resourceGroups/\<Resource Group Name\><br/>
       Ex: `az ad sp create-for-rbac -n openshiftcloudprovider --password Pass@word1 --role contributor --scopes /subscriptions/555a123b-1234-5ccc-defgh-6789abcdef01/resourceGroups/00000test`<br/>
 
-2. **Create Service Principal without assigning permissions to Resource Group**<br/>
+**Create Service Principal without assigning permissions to Resource Group**<br/>
   a.  az ad sp create-for-rbac -n \<friendly name\> --password \<password\> --role contributor --skip-assignment<br/>
       Ex: `az ad sp create-for-rbac -n openshiftcloudprovider --password Pass@word1 --role contributor --skip-assignment`<br/>
 
@@ -83,7 +83,7 @@ You will get an output similar to:
 
 The appId is used for the aadClientId parameter.
 
-3. **Assign permissions to Service Principal for specific Resource Group**<br/>
+**Assign permissions to Service Principal for specific Resource Group**<br/>
   a.  Sign into the Azure Portal<br/>
   b.  Select the Resource Group you want to assign permissions to<br/>
   c.  Select Access control (IAM) from middle pane<br/>
@@ -98,7 +98,7 @@ The appId is used for the aadClientId parameter.
 
 ### Red Hat Subscription Access
 
-For security reasons, the method for registering the RHEL system has been changed to allow the use of an Organization ID and Activation Key as well as a Username and Password. Please know that it is more secure to use the Organization ID and Activation Key.
+For security reasons, the method for registering the RHEL system has been changed to allow the use of an Organization ID and Activation Key as well as a Username and Password. 
 
 You can determine your Organization ID by running ```subscription-manager identity``` on a registered machine.  To create or find your Activation Key, please go here: https://access.redhat.com/management/activation_keys.
 
